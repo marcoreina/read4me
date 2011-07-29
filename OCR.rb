@@ -11,14 +11,17 @@ class OCR
   #*************************#
 
   #Define a largura/altura da matriz de entrada para a rede neural
-  DimensaoEntrada = 10
-  CorLimite = 128
+  DimensaoEntrada = 16
   
   #*************************#
   #Variáveis                #
   #*************************#
-  #Variável que referencia o arquivo de letras aprendidas 
+  #Variável que referencia o arquivo de letras aprendidas da rede neural sem peso 
   @letraAprendida = nil
+  #Variável que armazena a cor que serve de treshold da imagem atual
+  @corLimite = nil
+  #Hash com as matrizes pesos das letras aprendidas pela rede neural com peso
+  LetraAprendida = Hash.new
   
   #*************************#
   #Métodos                  #
@@ -26,43 +29,100 @@ class OCR
   
   def initialize()
     #Inicia testando se o arquivo XML que armazena os caracteres aprendidos já existe ou precisa ser recriado
-    if not FileTest.exist? "Fontes/Fontes.xml"
-      #Se não existe, crio o arquivo XML inicialmente vazio
-      criaXML()
-    else
-      f = File.open('Fontes/Fontes.xml', 'r')
-      doc = Nokogiri::XML(f)
-      dimensao = doc.xpath('//baseConhecimento/@dimensaoEntrada')[0].value.to_i
-      f.close
-      #Se a dimensão que foi gravada no XML é diferente da dimensão atual, refaço o arquivo XML
-      if dimensao != DimensaoEntrada
-        criaXML()
-      end
+    #Se não existe, crio o arquivo XML inicialmente vazio
+    if not FileTest.exist? "Fontes/Fontes.xml" or not FileTest.exist? "Fontes/RedeNeural.xml" or not FileTest.exist? "Fontes/RedeNeuralPeso.xml"
+      criaXMLFonte()
+      criaXMLRedeNeural()
+      criaXMLRedeNeuralPeso()
     end
+    
+    f = File.open('Fontes/Fontes.xml', 'r')
+    doc = Nokogiri::XML(f)
+    dimensao = doc.xpath('//fontes/@dimensaoEntrada')[0].value.to_i
+    f.close
+    #Se a dimensão que foi gravada no XML é diferente da dimensão atual, refaço o arquivo XML
+    if dimensao != DimensaoEntrada
+      criaXMLFonte()
+      criaXMLRedeNeural()
+      criaXMLRedeNeuralPeso()
+    end
+    
     treinamento()
   end
 #*****************************************************
   
-  #Método que cria o arquivo XML que armazena os caracteres aprendidos
-  def criaXML()
-    strXML = "<ocr><fontes/><baseConhecimento dimensaoEntrada='#{DimensaoEntrada}'>"
-    for i in "A"[0].."Z"[0]
-      strXML += "<elemento caracter='#{i.chr}'>"
-      for i in 0..DimensaoEntrada-1
-        strXML += "<linhas_#{i}></linhas_#{i}>"
-      end
-      strXML +="</elemento>"
-    end
-    for i in "a"[0].."z"[0]
-      strXML += "<elemento caracter='#{i.chr}'>"
-      for i in 0..DimensaoEntrada-1
-        strXML += "<linhas_#{i}></linhas_#{i}>"
-      end
-      strXML +="</elemento>"
-    end
-    strXML += "</baseConhecimento></ocr>"
+  def criaXMLFonte()
+    strXML = "<ocr><fontes dimensaoEntrada='#{DimensaoEntrada}'/></ocr>"
     
     arquivo = File.open('Fontes/Fontes.xml', 'w')
+    xml = Nokogiri::XML(strXML)
+    arquivo.puts xml.to_xml
+    arquivo.close
+  end
+#*****************************************************
+
+  #Método que cria o arquivo XML que armazena os caracteres aprendidos para a rede neural sem peso
+  def criaXMLRedeNeural()
+    strXML = "<RedeNeural><caracteres>"
+    for i in "A"[0].."Z"[0]
+      strXML += "<caracter nome='#{i.chr}'>"
+      for i in 0..DimensaoEntrada-1
+        strXML += "<linhas_#{i}></linhas_#{i}>"
+      end
+      strXML +="</caracter>"
+    end
+    for i in "a"[0].."z"[0]
+      strXML += "<caracter nome='#{i.chr}'>"
+      for i in 0..DimensaoEntrada-1
+        strXML += "<linhas_#{i}></linhas_#{i}>"
+      end
+      strXML +="</caracter>"
+    end
+    strXML += "</caracteres></RedeNeural>"
+    
+    arquivo = File.open('Fontes/RedeNeural.xml', 'w')
+    xml = Nokogiri::XML(strXML)
+    arquivo.puts xml.to_xml
+    arquivo.close
+  end
+#*****************************************************
+
+  #Método que cria o arquivo XML que armazena os caracteres aprendidos para a rede neural com peso
+  def criaXMLRedeNeuralPeso()
+    pixels = ""
+    (DimensaoEntrada*DimensaoEntrada).times { pixels += "0 "}
+    
+    strXML = "<RedeNeuralPeso><caracteres>"
+    
+    for i in "A"[0].."Z"[0]
+      strXML += "<caracter nome='#{i.chr}'>#{pixels}</caracter>"
+    end
+    for i in "a"[0].."z"[0]
+      strXML += "<caracter nome='#{i.chr}'>#{pixels}</caracter>"
+    end
+    #strXML += "<elemento caracter='À'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='Á'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='Â'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='Ã'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='É'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='Ê'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='Í'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='Ó'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='à'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='á'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='â'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='ã'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='ç'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='é'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='ê'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='í'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='ó'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='ô'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='õ'>#{pixels}</elemento>"
+    #strXML += "<elemento caracter='ú'>#{pixels}</elemento>"
+    strXML += "</caracteres></RedeNeuralPeso>"
+    
+    arquivo = File.open('Fontes/RedeNeuralPeso.xml', 'w')
     xml = Nokogiri::XML(strXML)
     arquivo.puts xml.to_xml
     arquivo.close
@@ -87,41 +147,87 @@ class OCR
       if not fontesAprendidas.include? fonte
         #Neste caso é uma fonte nova que terá que ser aprendida
         letras = Array.new
-        letras_temp = Array.new
         img = MultiArray.load_ubyte fonte
         #Encontra linha por linha
         linhas = encontraLinha img
         #Para cada linha, encontra as letras
-        linhas.each { |l| letras_temp.push encontraLetra l }
-        letras_temp.each {|l| letras += l }
-        for i in 0..letras.length-1
-          letras[i] = preparaLetra letras[i]
-        end
+        linhas.each { |l| letras.push encontraLetra(l)[0] }
+        letras.flatten!
         
         aprendeLetra(letras, fonte)
       end
     end
     inicializaLetraAprendida()
+    inicializaHash()
   end
 #*****************************************************
 
   #Método que coloca em memória o arquivo final de caracteres aprendidos
   def inicializaLetraAprendida()
-    arquivo = File.open('Fontes/Fontes.xml', 'r')
+    arquivo = File.open('Fontes/RedeNeural.xml', 'r')
     @letraAprendida = Nokogiri::XML(arquivo)
     arquivo.close
   end
 #*****************************************************
 
+  #Método que somente lê do XML e seta os valores da hash
+  def inicializaHash()
+    for i in "A"[0].."Z"[0]
+      LetraAprendida[i.chr] = getCaracterXMLRedeNeuralPeso(i.chr)
+    end
+    for i in "a"[0].."z"[0]
+      LetraAprendida[i.chr] = getCaracterXMLRedeNeuralPeso(i.chr)
+    end
+    #LetraAprendida["À"] = getCaracterXML("À")
+    #LetraAprendida["Á"] = getCaracterXML("Á")
+    #LetraAprendida["Â"] = getCaracterXML("Â")
+    #LetraAprendida["Ã"] = getCaracterXML("Ã")
+    #LetraAprendida["É"] = getCaracterXML("É")
+    #LetraAprendida["Ê"] = getCaracterXML("Ê")
+    #LetraAprendida["Í"] = getCaracterXML("Í")
+    #LetraAprendida["Ó"] = getCaracterXML("Ó")
+    #LetraAprendida["à"] = getCaracterXML("à")
+    #LetraAprendida["á"] = getCaracterXML("á")
+    #LetraAprendida["â"] = getCaracterXML("â")
+    #LetraAprendida["ã"] = getCaracterXML("ã")
+    #LetraAprendida["ç"] = getCaracterXML("ç")
+    #LetraAprendida["é"] = getCaracterXML("é")
+    #LetraAprendida["ê"] = getCaracterXML("ê")
+    #LetraAprendida["í"] = getCaracterXML("í")
+    #LetraAprendida["ó"] = getCaracterXML("ó")
+    #LetraAprendida["ô"] = getCaracterXML("ô")
+    #LetraAprendida["õ"] = getCaracterXML("õ")
+    #LetraAprendida["ú"] = getCaracterXML("ú")
+  end
+#*****************************************************
+  
+  #Método que dada uma imagem, calcula um treshold baseado na cor de fundo da imagem
+  def encontraCorLimite(img)
+    pixels = img.components
+    num_pixels = pixels.max
+    histograma = pixels.histogram num_pixels+1
+    mascara = histograma.between? histograma.max, histograma.max+1
+    #Decubro a label dada aos pixels com a cor mais frequente da imagem (provavelmente o fundo do papel)
+    labelPixelMax = Sequence( INT, num_pixels+1 ).indgen.mask(mascara).to_a[0]
+    mascaraPixelMax = pixels.eq labelPixelMax
+    #Cor RGB do pixel mais frequente variando de 0..255
+    corLimite = img.mask(mascaraPixelMax)[0]
+    #Margem de 15% sobre a cor do fundo, de maneira que pixels com cores abaixo desse valor serão considerados pixels de caracteres
+    @corLimite = (corLimite*0.85).round
+  end
+
   #Método que recebe a imagem do papel que contém o texto e retorna uma array com as linhas do texto
   def encontraLinha(img)
     linhas = Array.new
+    x = lazy( *img.shape ) { |i,j| i }
     y = lazy( *img.shape ) { |i,j| j }
-    componentes = (img <= CorLimite).components
+    encontraCorLimite img
+    componentes = (img <= @corLimite).components
     num_componentes = componentes.max
     alturaMedia = 0.0
+    intLinha = 0
     numMedioPixel = 0.0
-    nComponente = 0
+    nComponente = 1
     
     #Faço um histograma para saber quantos pixels cada componente conexo tem
     histograma = componentes.histogram num_componentes+1
@@ -138,63 +244,67 @@ class OCR
     #Sequencia de componentes que sao lixos e serão descartados
     componenteLixo = Sequence( INT, num_componentes+1 ).indgen.mask(mascara).to_a
     
-    #Coloco a label de todos esses componentes como "zero", para mais a frente ser descartado junto com o fundo do papel
-    componenteLixo.each do |c|
-      componente = componentes.eq c
-      componente = componente.conditional(-c,0)
-      componentes += componente
+    if componenteLixo.length != 0
+      #Coloco a label de todos esses componentes como "zero", para mais a frente ser descartado junto com o fundo do papel
+      componenteLixo.each do |c|
+        componente = componentes.eq c
+        img[x.mask(componente).range, y.mask(componente).range] = 255
+      end
+      
+      #Aqui obtenho novamente os componentes, desta vez já limpo de lixos e ruídos
+      componentes = (img <= @corLimite).components
+      num_componentes = componentes.max
     end
     
-    #Aqui obtenho novamente os componentes, desta vez já limpo de lixos e ruídos
-    componentes = componentes.components
-    num_componentes = componentes.max
+    while nComponente < num_componentes + 1
+      caracter = componentes.eq nComponente
+      linhaTopo = y.mask( caracter ).range.min
+      linhaPe = y.mask( caracter ).range.max + 1
     
-    #Faço uma amostragem, pegando a média da altura de componentes conexos aleatórios
-    for i in 1..componentes.max-1
-      caracter = componentes.eq i
-      topo = y.mask( caracter ).range.min
-      pe = y.mask( caracter ).range.max
-      alturaMedia += pe - topo
+      while componentes[0..componentes.width-1, linhaPe..linhaPe].max != 0
+        linhaPe += 1
+      end
+      linha = componentes[0..componentes.width-1, linhaTopo..(linhaPe-1)]
+      nComponente = linha.max + 1
+      
+      alturaMedia += linhaPe - linhaTopo
+      intLinha += 1
     end
-    alturaMedia = alturaMedia / num_componentes
+    alturaMedia = alturaMedia/intLinha
     
-    while nComponente != num_componentes
+    nComponente = 1
+    
+    while nComponente < num_componentes + 1 
       linha = nil
       linhaTopo, linhaPe = nil,nil
-      blnEncontreiLetra = false
-      #Primeiro componentes da linha
-      componenteInicial = nComponente + 1
+      blnEncontreiLinha = false
       
-      begin
-        nComponente += 1
+      while blnEncontreiLinha == false and nComponente < num_componentes + 1 
         caracter = componentes.eq nComponente
-        topoCaracter = y.mask( caracter ).range.min
-        peCaracter = y.mask( caracter ).range.max
-        alturaCaracter = peCaracter - topoCaracter
         
-        #Teste para saber se o que acabamos de encontrar já é elemento da próxima linha,
-        #isto é, se é um acento da próxima linha, abaixo da linha atual, supondo que somente os
-        #acentos podem acabar invadindo a região de outra linha. 
-        if blnEncontreiLetra == true
-          if alturaCaracter < alturaMedia * 0.5 and peCaracter > linhaPe
-            nComponente -= 1
-            break
+        if linhaTopo.nil?
+          linhaTopo = y.mask( caracter ).range.min
+          while componentes[0..componentes.width-1, linhaTopo..linhaTopo].max != 0
+            linhaTopo -= 1
           end
-        else
-          blnEncontreiLetra = alturaCaracter > alturaMedia * 0.5
+          linhaTopo += 1
         end
         
-        linhaTopo = topoCaracter if linhaTopo.nil? or topoCaracter < linhaTopo 
-        linhaPe = peCaracter if linhaPe.nil? or peCaracter > linhaPe
-        #linha = componentes[0..componentes.width-1, linhaTopo..linhaPe]
-        linha = componentes[0..componentes.width-1, linhaTopo..linhaPe]
-      end while nComponente != linha.max or blnEncontreiLetra == false
+        linhaPe = y.mask( caracter ).range.max + 1
       
-      #Descarta todos os componentes que já foram processados
-      linha = (linha < componenteInicial).conditional(nComponente + 1, 0) + linha
-      linha = (linha < nComponente + 1).conditional(0,255)
-      
-      linhas.push linha
+        while componentes[0..componentes.width-1, linhaPe..linhaPe].max != 0
+          linhaPe += 1
+        end
+        linha = componentes[0..componentes.width-1, linhaTopo..(linhaPe-1)]
+        nComponente = linha.max + 1
+        
+        alturaCaracter = linhaPe - linhaTopo 
+        
+        if alturaCaracter > alturaMedia * 0.5
+          blnEncontreiLinha = true
+        end
+      end
+      linhas.push img[0..componentes.width-1, linhaTopo..(linhaPe-1)]
     end
     linhas
   end
@@ -204,14 +314,14 @@ class OCR
   def encontraLetra(linha)
     #Coloco a linha na vertical, dessa forma a ordem dos componentes coincide com a ordem das letras
     letrasEncontradas = Array.new
+    espacamentoLetras = Array.new
     linha = linha.to_magick.rotate(90).to_ubyte
     x = lazy( *linha.shape ) { |i,j| i }
     y = lazy( *linha.shape ) { |i,j| j }
-    componentes = (linha <= CorLimite).components
+    componentes = (linha <= @corLimite).components
     labelLetraAnterior = nil
     espacoMedio = 0.0
     
-    #Esse primeiro loop coloca acentos como mesmo componentes da letra a que pertencem
     for nComponente in 1..componentes.range.max
       letra = componentes.eq nComponente
       alturaLetra = x.mask(letra).range
@@ -222,22 +332,26 @@ class OCR
         componentes[0..letra.width-1, larguraLetra] += letra[0..letra.width-1, larguraLetra].conditional(componenteMaximo - nComponente,0)
       else
         box = [ alturaLetra, larguraLetra ]
-        letrasEncontradas.push linha[*box].to_magick.rotate(-90).to_ubyte
+        letrasEncontradas.push preparaLetra(linha[*box].to_magick.rotate(-90).to_ubyte)
         
         #Calcula o espaçamento entre uma letra e outra 
         if not labelLetraAnterior.nil?
           letraAnterior = componentes.eq labelLetraAnterior
           posLetraAnterior = y.mask(letraAnterior).range.max
-          espacoMedio += larguraLetra.min - posLetraAnterior
+          espacamentoLetras.push(larguraLetra.min - posLetraAnterior)
         end
         labelLetraAnterior = nComponente
       end
     end
     
-    espacoMedio = espacoMedio / letrasEncontradas.length - 1
+    totalEspaco = 0
+    espacamentoLetras.each{ |esp| totalEspaco += esp}
+    espacoMedio = totalEspaco.to_f / espacamentoLetras.length
     
+    #Se o espaçamento entre as letras for muito maior que o espaço médio, considero como sendo um espaço entre letras
+    espacamentoLetras.map!{ |esp| esp > espacoMedio * 1.5 ? esp = " " : esp = nil}
     
-    letrasEncontradas
+    return letrasEncontradas, espacamentoLetras
   end
 #*****************************************************
 
@@ -249,7 +363,7 @@ class OCR
     letra = letra.scale(fatorEscala)
     letra = letra.to_ubyte
     
-    letra = (letra < 192).conditional(0,255)
+    letra = (letra < @corLimite).conditional(0,255)
     
     #Verificando se a letra está bem ajustada, sem colunas em branco à esquerda
     #blnLetraOk = false
@@ -274,31 +388,74 @@ class OCR
  
 #*****************************************************
   
-  #Método que dada a matriz do caracter, passa os valores dos dos elementos para uma string e salva no arquivo XML
-  def saveCaracterXML(caracter, matrizCaracter)
-    matrizBinaria = ( matrizCaracter <= CorLimite).conditional(1,0)
+  #Método que dado o caracter, vai no XML e busca os valores armazenados de sua matriz com os pesos aprendidos
+  def getCaracterXMLRedeNeuralPeso(caracter)
+    arquivo = File.open('Fontes/RedeNeuralPeso.xml', 'r')
+    xml = Nokogiri::XML(arquivo)
+    arquivo.close
     
-    arquivo = File.open('Fontes/Fontes.xml', 'r')
+    caracter = xml.xpath("//caracteres/caracter[@nome = '#{caracter}']")[0].content.split(/ /)
+    k = -1
+    
+    matrizCaracter = (MultiArray.int DimensaoEntrada, DimensaoEntrada).fill!
+    for i in 0..matrizCaracter.width-1
+      for j in 0..matrizCaracter.height-1
+        matrizCaracter[i][j] = caracter[k+= 1].to_i
+      end
+    end
+    matrizCaracter
+  end
+#*****************************************************
+  
+  #Método que dada a matriz do caracter, passa os valores dos dos elementos para uma string e salva no arquivo XML
+  def saveCaracterXMLRedeNeural(caracter, matrizCaracter)
+    matrizBinaria = ( matrizCaracter <= @corLimite).conditional(1,0)
+    
+    arquivo = File.open('Fontes/RedeNeural.xml', 'r')
     xml = Nokogiri::XML(arquivo)
     arquivo.close
     
     for i in 0..matrizBinaria.height-1
       linha = matrizBinaria[0..matrizBinaria.width-1, i]
       mapeamentoBinario = linha.to_a.join
-      teste = xml.xpath("//baseConhecimento/elemento[@caracter = '#{caracter}']/linhas_#{i}/linha[. = '#{mapeamentoBinario}']")
-      if teste.length == 0
-        fontesNode = xml.xpath("//baseConhecimento/elemento[@caracter = '#{caracter}']/linhas_#{i}")
-        fonteXML = Nokogiri::XML::Node.new "linha", xml
-        fonteXML.content = mapeamentoBinario
-        fontesNode[0].add_child fonteXML
+      consulta = xml.xpath("//caracteres/caracter[@nome = '#{caracter}']/linhas_#{i}/linha[. = '#{mapeamentoBinario}']")
+      #Se não existe, adiciona à base de conhecimento
+      if consulta.length == 0
+        linhasNode = xml.xpath("//caracteres/caracter[@nome = '#{caracter}']/linhas_#{i}")
+        linhaXML = Nokogiri::XML::Node.new "linha", xml
+        linhaXML.content = mapeamentoBinario
+        linhasNode[0].add_child linhaXML
       end
     end
     
-    arquivo = File.open('Fontes/Fontes.xml', 'w')
+    arquivo = File.open('Fontes/RedeNeural.xml', 'w')
     arquivo.puts xml.to_xml
     arquivo.close
   end
   
+#*****************************************************
+  
+  #Método que dada a matriz do caracter, passa os valores dos dos elementos para uma string e salva no arquivo XML
+  def saveCaracterXMLRedeNeuralPeso(caracter, matrizCaracter)
+    #Imagem binária: 0 fundo, 1 letra
+    matrizBinaria = ( matrizCaracter <= @corLimite).conditional(1,0)
+    #Letra pontuada: -1 fundo, 1 letra
+    matrizPeso = (matrizBinaria < 1).conditional(-1,1)
+    matrizPeso = matrizPeso + getCaracterXMLRedeNeuralPeso(caracter)
+    strPixelPeso = ""
+    matrizPeso.each {|pixel| strPixelPeso += pixel.to_s + " "}
+    
+    arquivo = File.open('Fontes/RedeNeuralPeso.xml', 'r')
+    xml = Nokogiri::XML(arquivo)
+    arquivo.close
+    
+    caracter = xml.xpath("//caracteres/caracter[@nome = '#{caracter}']")
+    caracter[0].content = strPixelPeso
+    
+    arquivo = File.open('Fontes/RedeNeuralPeso.xml', 'w')
+    arquivo.puts xml.to_xml
+    arquivo.close
+  end
 #*****************************************************
 
   #Método que recebe os caracteres e os salva no arquivo XML
@@ -318,51 +475,114 @@ class OCR
     letras.reverse!
     
     for i in "A"[0].."Z"[0]
-      saveCaracterXML( i.chr, letras.pop)
+      letra = letras.pop
+      saveCaracterXMLRedeNeural( i.chr, letra)
+      saveCaracterXMLRedeNeuralPeso( i.chr, letra)
     end
     for i in "a"[0].."z"[0]
-      saveCaracterXML( i.chr, letras.pop)
+      letra = letras.pop
+      saveCaracterXMLRedeNeural( i.chr, letra)
+      saveCaracterXMLRedeNeuralPeso( i.chr, letra)
     end
   end
  
 #*****************************************************
 
   #Método que, dado o caracter, tenta reconhece-lo
-  def reconheca(entrada)
-    entrada = (entrada <= CorLimite).conditional(1,0)
-    total = Array.new
-    DimensaoEntrada.times {total.push []}
+  def reconheceRedeNeural(entrada)
+    entrada = (entrada <= @corLimite).conditional(1,0)
+    letrasPossiveis = Array.new
+    DimensaoEntrada.times {letrasPossiveis.push []}
     
     for i in 0..entrada.height-1
       linha = entrada[0..entrada.width-1, i]
       mapeamentoBinario = linha.to_a.join
-      temp = @letraAprendida.xpath("//baseConhecimento/elemento[linhas_#{i}/linha[. = '#{mapeamentoBinario}']]/@caracter")
-      temp.each {|e| total[i].push e.content}
+      consulta = @letraAprendida.xpath("//caracteres/caracter[linhas_#{i}/linha[. = '#{mapeamentoBinario}']]/@nome")
+      consulta.each {|e| letrasPossiveis[i].push e.content}
     end
-    total.flatten!
-    caracter = total.uniq
-    vezes = []
-    caracter.each {|e| vezes.push total.count(e)}
-    resultado = caracter[vezes.index(vezes.max)]
-    coeficienteReconhecimento = (total.count resultado)/DimensaoEntrada.to_f
+    letrasPossiveis.flatten!
+    letrasCandidatas = letrasPossiveis.uniq
+    frequencia = []
+    resultado = []
+    letrasCandidatas.each {|e| frequencia.push letrasPossiveis.count(e)}
+    
+    if frequencia.length != 0
+      maximo = frequencia.max
+      begin
+        indice = frequencia.index(maximo)
+        resultado.push letrasCandidatas.delete_at indice
+        frequencia.delete_at indice
+      end while maximo == frequencia.max
+      coeficienteReconhecimento = (letrasPossiveis.count resultado[0])/DimensaoEntrada.to_f
+    else
+      resultado = "nil"
+      coeficienteReconhecimento = 0.0
+    end
+    
     return resultado, coeficienteReconhecimento
   end
 
 #*****************************************************
 
+  def reconheceRedeNeuralPeso(entrada, letrasPreReconhecidas=nil)
+    mi = (entrada <= @corLimite).conditional(1,0)
+    hTemp = Hash.new
+    if letrasPreReconhecidas.nil?
+      #Caso em que não temos a mínima noção de que letra seja, então testamos todas as letras aprendidas (lento!)
+      LetraAprendida.each {|key,value|
+        candidateScore = (value*mi).sum
+        temp = value.mask(value > 0)
+        if temp.width != 0
+          idealWeightModelScore = temp.sum
+          recognitionQuotient = candidateScore / idealWeightModelScore.to_f
+        else
+          recognitionQuotient = 0
+        end
+        hTemp[key] = recognitionQuotient
+      }
+    else
+      #Neste caso, já obtivemos algumas letras possiveis atraves da rede neural sem peso e portanto só precisamos testa-las na rede com peso para definir
+      letrasPreReconhecidas.each { |letra|
+        candidateScore = (LetraAprendida[letra]*mi).sum
+        temp = LetraAprendida[letra].mask(LetraAprendida[letra] > 0)
+        if temp.width != 0
+          idealWeightModelScore = temp.sum
+          recognitionQuotient = candidateScore / idealWeightModelScore.to_f
+        else
+          recognitionQuotient = 0
+        end
+        hTemp[letra] = recognitionQuotient
+      }
+    end
+    return hTemp.index(hTemp.values.max), hTemp.values.max  
+  end
+#*****************************************************
+
   #Método que após aprendizado, é chamado para identificar o texto
   def le(img)
     letras = Array.new
-    letras_temp = Array.new
+    espacos = Array.new
     letrasReconhecidas = Array.new
     #Encontra linha por linha
     linhas = encontraLinha img
     #Para cada linha, encontra as letras
-    linhas.each { |l| letras_temp.push encontraLetra l }
-    letras_temp.each {|l| letras += l }
+    linhas.each { |l|
+      letrasTemp, espacosTemp = encontraLetra l 
+      letras.push letrasTemp
+      espacos.push espacosTemp
+    }
+    letras.flatten!
+    espacos.flatten!
     
     for i in 0..letras.length-1
-      letrasReconhecidas.push reconheca preparaLetra letras[i]
+      letrasObtidas, coeficienteReconhecimento = reconheceRedeNeural letras[i]
+      if coeficienteReconhecimento < 0.75
+        letrasObtidas = reconheceRedeNeuralPeso letras[i]
+      elsif letrasObtidas.length > 1
+        letrasObtidas = reconheceRedeNeuralPeso( letras[i], letrasObtidas)
+      end
+      letrasReconhecidas <<  letrasObtidas[0]
+      letrasReconhecidas <<  espacos[0] if not espacos[i].nil?
     end
     letrasReconhecidas
   end

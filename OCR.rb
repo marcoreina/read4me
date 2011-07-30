@@ -284,7 +284,7 @@ class OCR
         
         if linhaTopo.nil?
           linhaTopo = y.mask( caracter ).range.min
-          while componentes[0..componentes.width-1, linhaTopo..linhaTopo].max != 0
+          while componentes[0..componentes.width-1, linhaTopo..linhaTopo].max != 0 and linhaTopo != 0
             linhaTopo -= 1
           end
           linhaTopo += 1
@@ -350,6 +350,7 @@ class OCR
     
     #Se o espaçamento entre as letras for muito maior que o espaço médio, considero como sendo um espaço entre letras
     espacamentoLetras.map!{ |esp| esp > espacoMedio * 1.5 ? esp = " " : esp = nil}
+    espacamentoLetras << " "
     
     return letrasEncontradas, espacamentoLetras
   end

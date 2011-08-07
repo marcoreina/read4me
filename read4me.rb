@@ -57,7 +57,7 @@ require "OCR.rb"
 ocr = OCR.new
 
 
-fonte = "LucidaSans48.jpg"
+fonte = "Testes/TesteArial30.jpg"
 img = MultiArray.load_ubyte fonte
 letrasLucida = Array.new
 linhas = ocr.encontraLinha img

@@ -1,4 +1,37 @@
 <?xml version="1.0"?>
 <ocr>
-  <fontes dimensaoEntrada="16"><fonte>Fontes/Arial48.jpg</fonte><fonte>Fontes/Calibri48.jpg</fonte><fonte>Fontes/Tahoma48.jpg</fonte><fonte>Fontes/TimesNewRoman48.jpg</fonte><fonte>Fontes/ComicSans48.jpg</fonte><fonte>Fontes/LucidaSans48.jpg</fonte><fonte>Fontes/Verdana48.jpg</fonte><fonte>Fontes/Arial36.jpg</fonte><fonte>Fontes/Calibri36.jpg</fonte><fonte>Fontes/Tahoma36.jpg</fonte><fonte>Fontes/TimesNewRoman36.jpg</fonte><fonte>Fontes/LucidaSans36.jpg</fonte><fonte>Fontes/Verdana36.jpg</fonte><fonte>Fontes/ComicSans36.jpg</fonte><fonte>Fontes/Arial24.jpg</fonte><fonte>Fontes/Calibri24.jpg</fonte><fonte>Fontes/Tahoma24.jpg</fonte><fonte>Fontes/TimesNewRoman24.jpg</fonte><fonte>Fontes/ComicSans24.jpg</fonte><fonte>Fontes/LucidaSans24.jpg</fonte><fonte>Fontes/Verdana24.jpg</fonte><fonte>Fontes/Arial14.jpg</fonte><fonte>Fontes/Calibri14.jpg</fonte><fonte>Fontes/Tahoma14.jpg</fonte><fonte>Fontes/TimesNewRoman14.jpg</fonte><fonte>Fontes/ComicSans14.jpg</fonte><fonte>Fontes/LucidaSans14.jpg</fonte><fonte>Fontes/Verdana14.jpg</fonte><fonte>Fontes/CourierNew48.jpg</fonte><fonte>Fontes/CourierNew36.jpg</fonte><fonte>Fontes/CourierNew24.jpg</fonte><fonte>Fontes/CourierNew14.jpg</fonte></fontes>
+  <fontes dimensaoEntrada="16">
+  <fonte>Fontes/Tahoma48.jpg</fonte>
+  <fonte>Fontes/Verdana36.jpg</fonte>
+  <fonte>Fontes/Arial14.jpg</fonte>
+  <fonte>Fontes/Tahoma14.jpg</fonte>
+  <fonte>Fontes/Tahoma36.jpg</fonte>
+  <fonte>Fontes/LucidaSans48.jpg</fonte>
+  <fonte>Fontes/CourierNew24.jpg</fonte>
+  <fonte>Fontes/ComicSans48.jpg</fonte>
+  <fonte>Fontes/TimesNewRoman14.jpg</fonte>
+  <fonte>Fontes/Arial48.jpg</fonte>
+  <fonte>Fontes/ComicSans14.jpg</fonte>
+  <fonte>Fontes/Verdana24.jpg</fonte>
+  <fonte>Fontes/CourierNew36.jpg</fonte>
+  <fonte>Fontes/Calibri36.jpg</fonte>
+  <fonte>Fontes/Calibri48.jpg</fonte>
+  <fonte>Fontes/LucidaSans36.jpg</fonte>
+  <fonte>Fontes/LucidaSans24.jpg</fonte>
+  <fonte>Fontes/Tahoma24.jpg</fonte>
+  <fonte>Fontes/Calibri24.jpg</fonte>
+  <fonte>Fontes/CourierNew14.jpg</fonte>
+  <fonte>Fontes/TimesNewRoman48.jpg</fonte>
+  <fonte>Fontes/TimesNewRoman36.jpg</fonte>
+  <fonte>Fontes/Verdana14.jpg</fonte>
+  <fonte>Fontes/Calibri14.jpg</fonte>
+  <fonte>Fontes/ComicSans36.jpg</fonte>
+  <fonte>Fontes/ComicSans24.jpg</fonte>
+  <fonte>Fontes/CourierNew48.jpg</fonte>
+  <fonte>Fontes/LucidaSans14.jpg</fonte>
+  <fonte>Fontes/Arial36.jpg</fonte>
+  <fonte>Fontes/TimesNewRoman24.jpg</fonte>
+  <fonte>Fontes/Arial24.jpg</fonte>
+  <fonte>Fontes/Verdana48.jpg</fonte>
+  </fontes>
 </ocr>

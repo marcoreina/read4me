@@ -3,7 +3,10 @@ require 'hornetseye_v4l2'
 require 'hornetseye_xorg'
 require 'hornetseye_rmagick'
 require 'nokogiri'
+require 'espeak-ruby'
+require "rubygame"
 include Hornetseye
+include ESpeak
 
 class OCR
   #*************************#
@@ -28,6 +31,7 @@ class OCR
   #*************************#
   
   def initialize()
+    $KCODE = 'utf-8'
     #Inicia testando se o arquivo XML que armazena os caracteres aprendidos já existe ou precisa ser recriado
     #Se não existe, crio o arquivo XML inicialmente vazio
     if not FileTest.exist? "Fontes/Fontes.xml" or not FileTest.exist? "Fontes/RedeNeural.xml" or not FileTest.exist? "Fontes/RedeNeuralPeso.xml"
@@ -78,10 +82,112 @@ class OCR
       end
       strXML +="</caracter>"
     end
+    strXML += "<caracter nome='À'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='Á'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='Â'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='Ã'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='É'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='Ê'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='Í'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='Ó'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='à'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='á'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='â'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='ã'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='ç'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='é'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='ê'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='í'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='ó'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='ô'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='õ'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    strXML += "<caracter nome='ú'>"
+    for i in 0..DimensaoEntrada-1
+      strXML += "<linhas_#{i}></linhas_#{i}>"
+    end
+    strXML +="</caracter>"
+    
     strXML += "</caracteres></RedeNeural>"
     
     arquivo = File.open('Fontes/RedeNeural.xml', 'w')
     xml = Nokogiri::XML(strXML)
+    xml.encoding = "utf-8"
     arquivo.puts xml.to_xml
     arquivo.close
   end
@@ -100,30 +206,31 @@ class OCR
     for i in "a"[0].."z"[0]
       strXML += "<caracter nome='#{i.chr}'>#{pixels}</caracter>"
     end
-    #strXML += "<elemento caracter='À'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='Á'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='Â'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='Ã'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='É'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='Ê'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='Í'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='Ó'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='à'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='á'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='â'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='ã'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='ç'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='é'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='ê'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='í'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='ó'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='ô'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='õ'>#{pixels}</elemento>"
-    #strXML += "<elemento caracter='ú'>#{pixels}</elemento>"
+    strXML += "<caracter nome='À'>#{pixels}</caracter>"
+    strXML += "<caracter nome='Á'>#{pixels}</caracter>"
+    strXML += "<caracter nome='Â'>#{pixels}</caracter>"
+    strXML += "<caracter nome='Ã'>#{pixels}</caracter>"
+    strXML += "<caracter nome='É'>#{pixels}</caracter>"
+    strXML += "<caracter nome='Ê'>#{pixels}</caracter>"
+    strXML += "<caracter nome='Í'>#{pixels}</caracter>"
+    strXML += "<caracter nome='Ó'>#{pixels}</caracter>"
+    strXML += "<caracter nome='à'>#{pixels}</caracter>"
+    strXML += "<caracter nome='á'>#{pixels}</caracter>"
+    strXML += "<caracter nome='â'>#{pixels}</caracter>"
+    strXML += "<caracter nome='ã'>#{pixels}</caracter>"
+    strXML += "<caracter nome='ç'>#{pixels}</caracter>"
+    strXML += "<caracter nome='é'>#{pixels}</caracter>"
+    strXML += "<caracter nome='ê'>#{pixels}</caracter>"
+    strXML += "<caracter nome='í'>#{pixels}</caracter>"
+    strXML += "<caracter nome='ó'>#{pixels}</caracter>"
+    strXML += "<caracter nome='ô'>#{pixels}</caracter>"
+    strXML += "<caracter nome='õ'>#{pixels}</caracter>"
+    strXML += "<caracter nome='ú'>#{pixels}</caracter>"
     strXML += "</caracteres></RedeNeuralPeso>"
     
     arquivo = File.open('Fontes/RedeNeuralPeso.xml', 'w')
     xml = Nokogiri::XML(strXML)
+    xml.encoding = "utf-8"
     arquivo.puts xml.to_xml
     arquivo.close
   end
@@ -178,26 +285,26 @@ class OCR
     for i in "a"[0].."z"[0]
       LetraAprendida[i.chr] = getCaracterXMLRedeNeuralPeso(i.chr)
     end
-    #LetraAprendida["À"] = getCaracterXML("À")
-    #LetraAprendida["Á"] = getCaracterXML("Á")
-    #LetraAprendida["Â"] = getCaracterXML("Â")
-    #LetraAprendida["Ã"] = getCaracterXML("Ã")
-    #LetraAprendida["É"] = getCaracterXML("É")
-    #LetraAprendida["Ê"] = getCaracterXML("Ê")
-    #LetraAprendida["Í"] = getCaracterXML("Í")
-    #LetraAprendida["Ó"] = getCaracterXML("Ó")
-    #LetraAprendida["à"] = getCaracterXML("à")
-    #LetraAprendida["á"] = getCaracterXML("á")
-    #LetraAprendida["â"] = getCaracterXML("â")
-    #LetraAprendida["ã"] = getCaracterXML("ã")
-    #LetraAprendida["ç"] = getCaracterXML("ç")
-    #LetraAprendida["é"] = getCaracterXML("é")
-    #LetraAprendida["ê"] = getCaracterXML("ê")
-    #LetraAprendida["í"] = getCaracterXML("í")
-    #LetraAprendida["ó"] = getCaracterXML("ó")
-    #LetraAprendida["ô"] = getCaracterXML("ô")
-    #LetraAprendida["õ"] = getCaracterXML("õ")
-    #LetraAprendida["ú"] = getCaracterXML("ú")
+    LetraAprendida["À"] = getCaracterXMLRedeNeuralPeso("À")
+    LetraAprendida["Á"] = getCaracterXMLRedeNeuralPeso("Á")
+    LetraAprendida["Â"] = getCaracterXMLRedeNeuralPeso("Â")
+    LetraAprendida["Ã"] = getCaracterXMLRedeNeuralPeso("Ã")
+    LetraAprendida["É"] = getCaracterXMLRedeNeuralPeso("É")
+    LetraAprendida["Ê"] = getCaracterXMLRedeNeuralPeso("Ê")
+    LetraAprendida["Í"] = getCaracterXMLRedeNeuralPeso("Í")
+    LetraAprendida["Ó"] = getCaracterXMLRedeNeuralPeso("Ó")
+    LetraAprendida["à"] = getCaracterXMLRedeNeuralPeso("à")
+    LetraAprendida["á"] = getCaracterXMLRedeNeuralPeso("á")
+    LetraAprendida["â"] = getCaracterXMLRedeNeuralPeso("â")
+    LetraAprendida["ã"] = getCaracterXMLRedeNeuralPeso("ã")
+    LetraAprendida["ç"] = getCaracterXMLRedeNeuralPeso("ç")
+    LetraAprendida["é"] = getCaracterXMLRedeNeuralPeso("é")
+    LetraAprendida["ê"] = getCaracterXMLRedeNeuralPeso("ê")
+    LetraAprendida["í"] = getCaracterXMLRedeNeuralPeso("í")
+    LetraAprendida["ó"] = getCaracterXMLRedeNeuralPeso("ó")
+    LetraAprendida["ô"] = getCaracterXMLRedeNeuralPeso("ô")
+    LetraAprendida["õ"] = getCaracterXMLRedeNeuralPeso("õ")
+    LetraAprendida["ú"] = getCaracterXMLRedeNeuralPeso("ú")
   end
 #*****************************************************
   
@@ -208,7 +315,9 @@ class OCR
     histograma = pixels.histogram num_pixels+1
     mascara = histograma.between? histograma.max, histograma.max+1
     #Decubro a label dada aos pixels com a cor mais frequente da imagem (provavelmente o fundo do papel)
-    labelPixelMax = Sequence( INT, num_pixels+1 ).indgen.mask(mascara).to_a[0]
+    #labelPixelMax = Sequence( INT, num_pixels+1 ).indgen.mask(mascara).to_a[0]
+    labelPixelMax = lazy( num_pixels+1, 1 ){|i,j| i }[0]
+    labelPixelMax = labelPixelMax.mask(mascara).to_a[0]
     mascaraPixelMax = pixels.eq labelPixelMax
     #Cor RGB do pixel mais frequente variando de 0..255
     corLimite = img.mask(mascaraPixelMax)[0]
@@ -242,7 +351,9 @@ class OCR
     mascara = histograma.between? 0, (numMedioPixel*0.05).round
     
     #Sequencia de componentes que sao lixos e serão descartados
-    componenteLixo = Sequence( INT, num_componentes+1 ).indgen.mask(mascara).to_a
+    #componenteLixo = Sequence( INT, num_componentes+1 ).indgen.mask(mascara).to_a
+    componenteLixo = lazy( num_componentes+1, 1 ) {|i,j| i}[0]
+    componenteLixo = componenteLixo.mask(mascara).to_a
     
     if componenteLixo.length != 0
       #Coloco a label de todos esses componentes como "zero", para mais a frente ser descartado junto com o fundo do papel
@@ -485,6 +596,66 @@ class OCR
       saveCaracterXMLRedeNeural( i.chr, letra)
       saveCaracterXMLRedeNeuralPeso( i.chr, letra)
     end
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "À", letra)
+    saveCaracterXMLRedeNeuralPeso( "À", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "Á", letra)
+    saveCaracterXMLRedeNeuralPeso( "Á", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "Â", letra)
+    saveCaracterXMLRedeNeuralPeso( "Â", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "Ã", letra)
+    saveCaracterXMLRedeNeuralPeso( "Ã", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "É", letra)
+    saveCaracterXMLRedeNeuralPeso( "É", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "Ê", letra)
+    saveCaracterXMLRedeNeuralPeso( "Ê", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "Í", letra)
+    saveCaracterXMLRedeNeuralPeso( "Í", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "Ó", letra)
+    saveCaracterXMLRedeNeuralPeso( "Ó", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "à", letra)
+    saveCaracterXMLRedeNeuralPeso( "à", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "á", letra)
+    saveCaracterXMLRedeNeuralPeso( "á", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "â", letra)
+    saveCaracterXMLRedeNeuralPeso( "â", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "ã", letra)
+    saveCaracterXMLRedeNeuralPeso( "ã", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "ç", letra)
+    saveCaracterXMLRedeNeuralPeso( "ç", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "é", letra)
+    saveCaracterXMLRedeNeuralPeso( "é", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "ê", letra)
+    saveCaracterXMLRedeNeuralPeso( "ê", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "í", letra)
+    saveCaracterXMLRedeNeuralPeso( "í", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "ó", letra)
+    saveCaracterXMLRedeNeuralPeso( "ó", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "ô", letra)
+    saveCaracterXMLRedeNeuralPeso( "ô", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "õ", letra)
+    saveCaracterXMLRedeNeuralPeso( "õ", letra)
+    letra = letras.pop
+    saveCaracterXMLRedeNeural( "ú", letra)
+    saveCaracterXMLRedeNeuralPeso( "ú", letra)
   end
  
 #*****************************************************
@@ -583,8 +754,10 @@ class OCR
         letrasObtidas = reconheceRedeNeuralPeso( letras[i], letrasObtidas)
       end
       letrasReconhecidas <<  letrasObtidas[0]
-      letrasReconhecidas <<  espacos[0] if not espacos[i].nil?
+      letrasReconhecidas <<  espacos[i] if not espacos[i].nil?
     end
-    letrasReconhecidas
+    espeak("TextoReconhecido.mp3", :text => letrasReconhecidas.to_s, :voice => 'pt', :pitch => 99, :speed => 120)
+    Rubygame::Music.load("TextoReconhecido.mp3").play
+    return letrasReconhecidas.to_s, Rubygame::Music.load("TextoReconhecido.mp3") 
   end
 end
